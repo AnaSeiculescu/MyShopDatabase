@@ -1,0 +1,14 @@
+name: my-shop
+
+networks:
+  myShopNetwork:
+
+services:
+  myShopVM:
+    image: my-shop-vm-image
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3050:5432
+    restart: always

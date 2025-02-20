@@ -33,8 +33,6 @@ public class MyRepository {
 		}
 		// Perform desired database operations
 
-		// Close the connection
-//		closeConnection();
 	}
 
 	private void closeConnection() {
@@ -61,13 +59,13 @@ public class MyRepository {
 				order.setDate(date);
 				order.setId(id);
 				orderList.add(order);
-
 			}
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 		closeConnection();
+		System.out.println(orderList);
 		return orderList;
 	}
 }
