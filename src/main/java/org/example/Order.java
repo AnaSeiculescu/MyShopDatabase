@@ -1,11 +1,22 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Order {
 	private int id;
 	private Date date;
 	private String address;
+	private List<Product> productList = new ArrayList<>();
+
+	public List<Product> getProductList() {
+		return productList;
+	}
+
+	public void setProductList(List<Product> productList) {
+		this.productList = productList;
+	}
 
 	public int getId() {
 		return id;
@@ -37,6 +48,7 @@ public class Order {
 				"id=" + id +
 				", date=" + date +
 				", address='" + address + '\'' +
-				'}';
+				", productList=" + productList +
+				'}' + '\n';
 	}
 }

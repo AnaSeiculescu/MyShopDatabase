@@ -4,6 +4,7 @@ package org.example;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MyRepository {
 
@@ -21,18 +22,12 @@ public class MyRepository {
 		String username = "postgres";
 		String password = "anadb";
 
-		// Register the PostmydatabasegreSQL driver
-
 		try {
 			Class.forName("org.postgresql.Driver");
-
-			// Connect to the database
 			connection = DriverManager.getConnection(jdbcUrl, username, password);
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-		// Perform desired database operations
-
 	}
 
 	private void closeConnection() {
@@ -48,17 +43,42 @@ public class MyRepository {
 		try {
 			connect();
 			Statement statement = connection.createStatement();
-			ResultSet resultSet = statement.executeQuery("SELECT * FROM orders");
-			while (resultSet.next())
-			{
-				Order order = new Order();
-				int id = resultSet.getInt("id");
-				Date date = resultSet.getDate("date");
-				String address = resultSet.getString("address");
-				order.setAddress(address);
-				order.setDate(date);
-				order.setId(id);
-				orderList.add(order);
+			ResultSet resultSet = statement.executeQuery("SELECT * FROM orders_products op\n" +
+					"JOIN orders o ON o.id = op.order_id\n" +
+					"JOIN products p ON p.id = op.product_id\n" +
+					"ORDER BY o.address");
+			while (resultSet.next()) {
+				Order order;
+				int id = resultSet.getInt("order_id");
+				Optional<Order> orderOptional = orderList.stream()
+						.filter(o -> o.getId() == id)
+						.findAny();
+
+//				if (orderOptional.isPresent()) {
+//					order = orderOptional.get();
+//				} else {
+//					order = new Order();
+//				}
+
+				if (orderOptional.isPresent()) {
+					Product product = new Product(resultSet.getInt("product_id"), resultSet.getString("name"), resultSet.getInt("quantity"));
+					for (Order currentOrder : orderList) {
+						if (currentOrder.getId() == id) {
+							currentOrder.getProductList().add(product);
+						}
+					}
+				} else {
+					order = new Order();
+					Date date = resultSet.getDate("date");
+					String address = resultSet.getString("address");
+					order.setAddress(address);
+					order.setDate(date);
+					order.setId(id);
+					orderList.add(order);
+
+					Product product = new Product(resultSet.getInt("product_id"), resultSet.getString("name"), resultSet.getInt("quantity"));
+					order.getProductList().add(product);
+				}
 			}
 
 		} catch (Exception e) {
